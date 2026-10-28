@@ -1,0 +1,38 @@
+# Compose file for deploying on Coolify: build pack "Docker Compose", compose
+# location /docker-compose.coolify.yaml. compose.yaml stays the file setup.sh
+# and setup.ps1 drive locally.
+#
+# Differences from compose.yaml, all forced by how Coolify runs a stack:
+#   - no env_file: .env is gitignored, so the variables come from Coolify's
+#     Environment Variables tab instead;
+#   - no published port: Coolify's Traefik reaches the container over its own
+#     network. Give the service a domain ending in :8080 (the container port),
+#     e.g. https://orchard.example.com:8080 — the public side is still 443;
+#   - no name/image: Coolify names the project and the image itself.
+
+services:
+  orchard:
+    build: .
+    restart: unless-stopped
+    environment:
+      # Required, 24+ characters. Coolify lists it in the Environment
+      # Variables tab; the deploy fails until it is set.
+      - ORCHARD_API_KEY=${ORCHARD_API_KEY:?}
+      - ORCHARD_LOG_LEVEL=${ORCHARD_LOG_LEVEL:-info}
+      # Coolify's own proxy is the only thing in front of the container.
+      - ORCHARD_TRUST_PROXY_HEADERS=true
+    expose:
+      - "8080"
+    volumes:
+      # Holds the Apple session, the library and the database: keep it.
+      - orchard-data:/data
+    # Same sandbox requirements as compose.yaml (see the comment there).
+    # apparmor=unconfined is for Ubuntu 24.04+ hosts, which most Coolify
+    # servers are; Docker ignores it on a host without AppArmor.
+    security_opt:
+      - seccomp=unconfined
+      - systempaths=unconfined
+      - apparmor=unconfined
+
+volumes:
+  orchard-data:

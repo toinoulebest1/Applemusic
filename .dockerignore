@@ -1,0 +1,9 @@
+.git/
+data/
+docs/
+.env
+.env.example
+Dockerfile
+compose.yaml
+docker-compose.coolify.yaml
+README.md

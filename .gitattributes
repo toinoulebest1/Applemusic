@@ -1,2 +1,10 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Keep line endings predictable regardless of the cloning platform's
+# core.autocrlf setting. Everything here runs in a Linux container or a
+# POSIX shell and must stay LF; setup.ps1 is the only file that wants CRLF.
+* text=auto eol=lf
+
+*.ps1 text eol=crlf
+
+*.png binary
+*.jpg binary
+*.ico binary
